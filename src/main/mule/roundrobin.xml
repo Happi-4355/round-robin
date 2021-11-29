@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="ef5965da-2bad-4192-bfee-e8241afb391d" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="roundrobinFlow1" doc:id="10618abe-6cc5-4bf4-bd7e-cad357ae7443" >
+		<http:listener doc:name="Listener" doc:id="b8f9bfbd-95be-4c5b-b129-fd9991704110" config-ref="HTTP_Listener_config" path="/firstcry"/>
+		<first-successful doc:name="First Successful" doc:id="87b8f9e7-c57a-4c57-86a1-bd19ca7c9379" >
+			<route >
+				<http:request method="GET" doc:name="Request" doc:id="68be7179-52ee-4e0e-bb53-d1be2853f05a" url="http://localhost:8081/first"/>
+			</route>
+			<route >
+				<http:request method="GET" doc:name="Request" doc:id="b49975eb-f1e5-4b18-859f-3e56e4d227ca" url="http://localhost:8081/second"/>
+			</route>
+		</first-successful>
+		<logger level="INFO" doc:name="Logger" doc:id="7aabbca9-403b-4290-89e4-07b7c192927a" message="sucesful resposne....#[payload]"/>
+	</flow>
+	<flow name="roundrobinFlow2" doc:id="94e27704-ea87-4ac8-b831-83dcf29e114c" >
+		<http:listener doc:name="Listener" doc:id="f6218204-cc63-4a20-a40a-f702f115ae81" config-ref="HTTP_Listener_config" path="/first"/>
+		<set-payload value="#['success']" doc:name="Set Payload" doc:id="568fa1ae-42da-4d62-a857-146f98fd14da" />
+	</flow>
+	<flow name="roundrobinFlow3" doc:id="747b4dcf-c95e-48e3-90a3-c77d2b3643c5" >
+		<http:listener doc:name="Listener" doc:id="39ef1562-3aa9-4fa5-b55f-5aaa78aff20e" config-ref="HTTP_Listener_config" path="/second"/>
+		<set-payload value="#['success']" doc:name="Set Payload" doc:id="01c620ec-5ea4-4eae-a4a9-37bb9ee7bdbd" />
+	</flow>
+	<flow name="roundrobinFlow" doc:id="8d466555-8c1b-43ff-aa26-dc791e0c51f1" >
+		<scheduler doc:name="Scheduler" doc:id="c02ce338-afd5-4b61-abd9-87dd39ca92bb" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="10" timeUnit="HOURS"/>
+			</scheduling-strategy>
+		</scheduler>
+		<round-robin doc:name="Round Robin" doc:id="d67571d6-d222-4a72-b9de-c26ab4d2b778" >
+			<route >
+				<set-variable value="happi" doc:name="Set Variable" doc:id="5fb216e5-e000-40d4-8c79-e0213b46cf30" variableName="name"/>
+				<logger level="INFO" doc:name="Logger" doc:id="9700da85-b338-4cd2-9046-613aff6752fe" message='#["the night shift has been assigned to" ++ " " &#10;++ vars.name]'/>
+			</route>
+			<route >
+				<set-variable value="junnu" doc:name="Set Variable" doc:id="f994ea42-31c9-4878-8002-370e15f43d87" variableName="name"/>
+				<logger level="INFO" doc:name="Logger" doc:id="2a7adb27-db77-4ffb-a2c1-860154da9bad" message='#["the night shift has been assigned to" ++ " " &#10;++ vars.name]'/>
+			</route>
+			<route >
+				<set-variable value="smiley" doc:name="Set Variable" doc:id="289d8e93-3fa8-4c9b-899e-7407db1acd3a" variableName="name"/>
+				<logger level="INFO" doc:name="Logger" doc:id="c5e52a38-f644-4816-9fa8-45a502ab974f" message='#["the night shift has been assigned to" ++ " " &#10;++ vars.name]'/>
+			</route>
+		</round-robin>
+	</flow>
+</mule>
